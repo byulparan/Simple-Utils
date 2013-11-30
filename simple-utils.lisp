@@ -7,7 +7,7 @@
 (defun rename-package-nicknames (package &rest nicknames)
   "for Alias short package name from too long package name."
   (let ((pkg (package-name (find-package package))))
-    #+ccl(ccl::rename-package pkg pkg (append nicknames (package-nicknames pkg)))
+    #-sbcl(rename-package pkg pkg (append nicknames (package-nicknames pkg)))
     #+sbcl
     (let ((lock-p (sb-ext:package-locked-p pkg)))
       (when lock-p (sb-ext:unlock-package pkg))
@@ -21,9 +21,9 @@
 (defun get-fullpath (path)
   "returning absoulte full-pathname of path"
   #+ccl (namestring (ccl:full-pathname path))
-  #+sbcl (full-pathname path))
+  #-ccl (namestring (full-pathname path)))
 
-#+sbcl
+#-ccl
 (defun full-pathname (dir)
   (labels ((absolute-dir (dir)
 	     (if (eql (car dir) :absolute) (if (find :home dir)
@@ -32,12 +32,12 @@
 						(cdr (member :home dir)))
 					       dir)
 		 (let* ((default-dir
-			  (pathname-directory *default-pathname-defaults*)))
+			  (pathname-directory (truename ""))))
 		   (when (find :up dir)
 		     (setf dir (cdr dir))
 		     (setf default-dir (butlast default-dir)))
 		   (append default-dir (cdr dir))))))
-    (namestring (make-pathname :directory (absolute-dir (pathname-directory dir)) :name (pathname-name dir) :type (pathname-type dir)))))
+    (make-pathname :directory (absolute-dir (pathname-directory dir)) :name (pathname-name dir) :type (pathname-type dir))))
 
 
 ;;; -----------------------------------------------------------------------------------------
@@ -81,12 +81,12 @@
 (defun dup (object &optional (n 2))
   (duplicate object n))
 
-(defmethod duplicate (self (n fixnum))
+(defmethod duplicate (self (n integer))
   (if (not (listp self)) (make-list n :initial-element self)
       (loop for i from 0 below n
 	 collect (copy-list self))))
 
-(defmethod duplicate ((self function) (n fixnum))
+(defmethod duplicate ((self function) (n integer))
   (loop for i from 0 below n collect (funcall self i)))
 
 (defmethod duplicate ((self function) (n list))

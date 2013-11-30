@@ -6,7 +6,13 @@ I separated this library because it repeatedly used for my works.
 
 #### require:
   - [Quicklisp](http://www.quicklisp.org)
-  - [ClozureCL](http://www.clozure.com/clozurecl.html) or [SBCL](http://www.sbcl.org)
+  - Common Lisp Implementations
+	+ [ClozureCL](http://www.clozure.com/clozurecl.html)
+	+ [SBCL](http://www.sbcl.org)
+	+ [ECL](http://ecls.sourceforge.net)
+	+ [ABCL](http://abcl.org)
+	+ [CLisp](http://www.clisp.org)
+
 
 #### usage:
 __\#! reader macro__
