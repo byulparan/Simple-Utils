@@ -2,8 +2,7 @@
 (defpackage #:simple-utils
   (:use #:cl)
   (:nicknames #:su)
-  (:export #:call-in-main-thread
-	   #:->
+  (:export #:->
 	   
 	   #:rename-package-nicknames
 	   

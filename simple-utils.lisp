@@ -1,51 +1,6 @@
 (in-package #:simple-utils)
 
 ;;; -----------------------------------------------------------------------------------------
-;;; context & thrading
-;;; -----------------------------------------------------------------------------------------
- 
-#+ccl
-(defmacro call-in-main-thread ((&key (waitp t)) &body body)
-  "Some routine must call in main thread. especially about sounds or gui works.
- This macro interruption to main-thread, and wait until returning body form."
-  (if waitp `(ccl::call-in-initial-process
-	      (lambda () ,@body))
-      `(ccl::process-interrupt
-	ccl::*initial-process*
-	(lambda () ,@body))))
-
-#+sbcl
-(defmacro call-in-main-thread ((&key (waitp t)) &body body)
-  "Some routine must call in main thread. especially about sounds or gui works.
- This macro interruption to main-thread, and wait until returning body form."
-  (let ((semaphore (gensym))
-	(result (gensym)))
-    `(let ((,semaphore (when ,waitp
-			 (sb-thread:make-semaphore)))
-	   (,result nil))
-       (sb-thread:interrupt-thread
-	(sb-thread:main-thread)
-	(lambda ()
-	  (unwind-protect
-	       (handler-case (setf ,result (progn ,@body))
-		 (error () (format t "~&error with call-in-main-thread~%")))
-	    (when ,waitp
-	      (sb-thread:signal-semaphore ,semaphore)))))
-       (when ,waitp
-	 (sb-thread:wait-on-semaphore ,semaphore)
- 	 ,result))))
-
-(defmacro -> (&optional arg &body body)
-  "(-> (+ 1 2) (* 3) (/ 3))  expand to => (/ (* (+ 1 2) 3) 3)"
-  (when arg
-    (if (not body) arg
-	(let* ((form (mklist (car body)))
-	       (form (append (list (car form) arg) (cdr form))))
-	  (reduce (lambda (x y)
-		    (let ((y (mklist y)))
-		      (append (list (car y) x) (cdr y)))) (append (list form) (cdr body)))))))
-
-;;; -----------------------------------------------------------------------------------------
 ;;; package
 ;;; -----------------------------------------------------------------------------------------
 
@@ -94,6 +49,16 @@
 ;;; -----------------------------------------------------------------------------------------
 ;;; sequence
 ;;; -----------------------------------------------------------------------------------------
+
+(defmacro -> (&optional arg &body body)
+  "(-> (+ 1 2) (* 3) (/ 3))  expand to => (/ (* (+ 1 2) 3) 3)"
+  (when arg
+    (if (not body) arg
+	(let* ((form (mklist (car body)))
+	       (form (append (list (car form) arg) (cdr form))))
+	  (reduce (lambda (x y)
+		    (let ((y (mklist y)))
+		      (append (list (car y) x) (cdr y)))) (append (list form) (cdr body)))))))
 
 (defun mklist (val)
   "If val is lisp, then return. but if val is atom, make list from val."

@@ -15,13 +15,6 @@ __\#! reader macro__
 	(funcall #!(+ 10 %) 100) => 110
 	(funcall #!(- %2 %1) 10 100) => 90
 
-__call-in-main-thread__
-
-	;; Some routine must call in main thread. especially about sounds or gui works.
-	;; This macro interruption to main-thread, and wait until returning body form.
-	(call-in-main-thread nil
-    	(+ 10 20)) => 30
-
 __->__
 
 	(-> (+ 1 2) (* 3) (- 10) (print)) is exapnd to (PRINT (- (* (+ 1 2) 3) 10))
