@@ -143,12 +143,11 @@
 			 (if (char= first-char #\space) (error "bad syntax..by #\\space")
 			     (unread-char first-char stream)))
 		       (let ((*name-db* nil))
-			 (let ((body-form (do-parse-from-form (read stream nil nil))))
-			   `(lambda ,(cat (mapcar #'cdr (fill-in-name-db *name-db*)) '(&rest rest))
-			      (declare (ignorable rest))
+			 (let ((body-form (do-parse-from-form (read stream nil nil)))
+			       (args (mapcar #'cdr (fill-in-name-db *name-db*))))
+			   `(lambda ,(cat args '(&rest rest))
+			      (declare (ignorable ,@args rest))
 			      ,body-form)))))
-
-
 
 
 
