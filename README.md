@@ -1,4 +1,4 @@
-# Simple-Utility
+# Simple-Utils
 The collection of simple functions for CommonLisp.  
 Almost function is created for just simple notations.  
 I separated this library because it repeatedly used for my works.
@@ -31,7 +31,7 @@ __dup__
 	(dup #!(+ 100 %) 4) => (100 101 102 103)
 	(dup #!(+ 100 %) (list 72 75 79 83)) => (172 175 179 183)
 
-__get-fullpath__
+__full-pathname__
 
 	;; returning absoulte full-pathname of path
 

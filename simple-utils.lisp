@@ -18,13 +18,13 @@
 ;;; -----------------------------------------------------------------------------------------
 ;;; file
 ;;; -----------------------------------------------------------------------------------------
-(defun get-fullpath (path)
+(defun full-pathname (path)
   "returning absoulte full-pathname of path"
   #+ccl (namestring (ccl:full-pathname path))
-  #-ccl (namestring (full-pathname path)))
+  #-ccl (namestring (get-fullpath path)))
 
 #-ccl
-(defun full-pathname (dir)
+(defun get-fullpath (dir)
   (labels ((absolute-dir (dir)
 	     (if (eql (car dir) :absolute) (if (find :home dir)
 					       (append
@@ -39,6 +39,21 @@
 		   (append default-dir (cdr dir))))))
     (make-pathname :directory (absolute-dir (pathname-directory dir)) :name (pathname-name dir) :type (pathname-type dir))))
 
+;;; -----------------------------------------------------------------------------------------
+;;; external-process
+;;; -----------------------------------------------------------------------------------------
+(defun run-program (command &key output wait)
+  #+ccl (ccl:run-program "/bin/sh" (list "-c" command) :output output :wait wait)
+  #+sbcl (sb-ext:run-program "/bin/sh" (list "-c" command) :output output :wait wait)
+  #+clisp (ext:run-program "/bin/sh" :arguments (list "-c" command) :output (if (eql output t) :terminal output) :wait wait)
+  #+abcl (progn
+	   wait
+	   (ext:run-shell-command (format nil "/bin/sh -c \"~a\"" command) :output (if (eql output t) *standard-output* output)))
+  #+ecl (let ((*standard-output* ext:+process-standard-output+)
+	      (*standard-input* ext:+process-standard-input+)
+	      (*error-output* ext:+process-error-output+))
+	  output wait
+	  (ext:system (format nil "/bin/sh -c \"~a\"" command))))
 
 ;;; -----------------------------------------------------------------------------------------
 ;;; printing
@@ -97,6 +112,15 @@
   `(do ((,var ,form ,form))
        ((not ,var))
      ,@body))
+
+;;; -----------------------------------------------------------
+;;; Math
+;;; 
+(defun range-map (value input-min input-max output-min output-max)
+  "Re-maps a number from one range to another. We convert the number value where inputMin < value < inputMax into a number beetween outputMin and outputMax."
+  (assert (and (>= value input-min) (>= input-max value)))
+  (+ (* 1.0 (- output-max output-min) (/ (- value input-min) (- input-max input-min))) output-min))
+
 
 
 ;;; -----------------------------------------------------------------------------------------

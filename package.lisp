@@ -6,15 +6,17 @@
 	   
 	   #:rename-package-nicknames
 	   
-	   #:get-fullpath
-
+	   #:full-pathname
+	   #:run-program
 	   #:println
 
 	   #:mklist
 	   #:partition
 	   #:cat
 	   #:dup
-	   #:do-while))
+	   #:do-while
+
+	   #:range-map))
 
  
 
