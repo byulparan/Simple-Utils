@@ -170,7 +170,7 @@
 		       (let ((*name-db* nil))
 			 (let ((body-form (do-parse-from-form (read stream nil nil)))
 			       (args (mapcar #'cdr (fill-in-name-db *name-db*))))
-			   `(lambda ,(cat args '(&rest rest))
+			   `(lambda ,(concatenate 'list args '(&rest rest))
 			      (declare (ignorable ,@args rest))
 			      ,body-form)))))
 
